@@ -5,7 +5,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN apk --no-cache add --virtual builds-deps build-base python3 git
 RUN npm install
+RUN npm install -g nodemon
 COPY . .
 ENV NODE_ENV dev
 ENV NODE_ICU_DATA=node_modules/full-icu
-ENTRYPOINT [ "npm", "run", "dev"]
+ENTRYPOINT [ "npm", "run", "debug"]
+#ENTRYPOINT [ "npm", "run", "dev"]

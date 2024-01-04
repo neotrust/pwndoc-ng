@@ -4,7 +4,7 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY package*.json ./
 RUN apk --no-cache add --virtual builds-deps build-base python3 git
-RUN npm install
+RUN npm install -g nodemon && npm install
 COPY . .
 EXPOSE 4242
 ENV NODE_ENV prod

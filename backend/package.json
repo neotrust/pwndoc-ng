@@ -9,7 +9,8 @@
     "dev": "nodemon src/app.js",
     "prod": "NODE_ENV=prod nodemon src/app.js",
     "test": "NODE_ENV=test jest tests/index.test.js --testTimeout=10000 --forceExit",
-    "swagger-autogen": "node ./swagger.js"
+    "swagger-autogen": "node ./swagger.js",
+    "debug": "nodemon --inspect=0.0.0.0 src/app.js"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",

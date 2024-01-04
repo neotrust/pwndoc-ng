@@ -816,7 +816,7 @@ async function prepAuditData(data, settings) {
             affected: finding.scope || "",
             status: finding.status || "",
             category: $t(finding.category) || $t("No Category"),
-            identifier: "IDX-" + utils.lPad(finding.identifier)
+            //identifier: "IDX-" + utils.lPad(finding.identifier)
         }
         // Remediation Complexity color 
         if (tmpFinding.remediationComplexity === 1) tmpFinding.remediation.cellColorComplexity = cellLowColorRemediationComplexity
@@ -899,6 +899,12 @@ async function prepAuditData(data, settings) {
         }
         result.findings.push(tmpFinding)
     }
+    result.findings.sort((a, b) => b.cvss.baseMetricScore - a.cvss.baseMetricScore)
+    for (let i = 0; i < result.findings.length; i++) {
+        result.findings[i].identifier = "IDX-" + utils.lPad(i+1);
+    }
+    console.log(result.findings[0]);
+    console.log(result.findings[5]);
 
     result.categories = _
         .chain(result.findings)
