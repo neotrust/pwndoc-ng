@@ -1,0 +1,65 @@
+version: '3'
+services:
+  mongodb:
+    image: mongo:4.2.15
+    container_name: mongo-pwndoc-ng
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+    ports:
+      - 127.0.0.1:27017:27017
+    environment:
+      - MONGO_DB:pwndoc
+    networks:
+      - backend
+
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile.dev
+    image: pwndoc-ng/pwndoc-ng:backend-dev
+    container_name: pwndoc-ng-backend-dev
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/ssl:/app/ssl
+      - ./backend/report-templates:/app/report-templates
+    depends_on:
+      - mongodb
+    environment:
+      - COLLAB_WEBSOCKET_PORT=8440
+    restart: always
+    ports:
+      - 5252:5252
+      - 9229:9229
+    links:
+      - mongodb
+    networks:
+      - backend
+
+  frontend-app:
+    build: 
+      context : ./frontend/
+      dockerfile: Dockerfile.dev
+    image: pwndoc-ng/pwndoc-ng:frontend-dev
+    container_name: pwndoc-ng-frontend-dev
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/ssl:/app/ssl
+      - ./frontend/public:/app/public
+      - ./frontend/.postcssrc.js:/app/.postcssrc.js
+      - ./frontend/babel.config.js:/app/babel.config.js
+      - ./frontend/quasar.conf.js:/app/quasar.conf.js
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/package-lock.json:/app/package-lock.json
+    restart: always
+    ports:
+      - 8081:8081
+    networks:
+      - backend
+
+volumes:
+  mongo-data:
+
+networks:
+  backend:
+      driver: bridge
