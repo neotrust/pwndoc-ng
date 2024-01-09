@@ -414,7 +414,7 @@ module.exports = function(app, io) {
             if (!audit.template)
                 throw ({fn: 'BadParameters', message: 'Template not defined'})
 
-            var reportDoc = await reportGenerator.generateDoc(audit);
+            var reportDoc = (req.query.anonymous=="true") ? await reportGenerator.generateDoc(audit,true) : await reportGenerator.generateDoc(audit);
             Response.SendFile(res, `${audit.name.replace(/[\\\/:*?"<>|]/g, "")}.${audit.template.ext || 'docx'}`, reportDoc);
         })
         .catch(err => {

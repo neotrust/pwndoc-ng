@@ -65,8 +65,8 @@ export default {
     return Vue.prototype.$axios.get(`audits/types`)
   },
 
-  generateAuditReport: function(auditId) {
-    return Vue.prototype.$axios.get(`audits/${auditId}/generate`, {responseType: 'blob'})
+  generateAuditReport: function(auditId, anonymous=false) {
+    return anonymous ? Vue.prototype.$axios.get(`audits/${auditId}/generate?anonymous=true`, {responseType: 'blob'}) : Vue.prototype.$axios.get(`audits/${auditId}/generate`, {responseType: 'blob'})
   },
 
   updateAuditSortFindings: function(auditId, audit) {

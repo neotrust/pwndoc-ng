@@ -15,7 +15,7 @@ var translate = require('../translate')
 var $t
 
 // Generate document with docxtemplater
-async function generateDoc(audit) {
+async function generateDoc(audit, anonymous=false) {
     var templatePath = `${__basedir}/../report-templates/${audit.template.name}.${audit.template.ext || 'docx'}`
     var content = fs.readFileSync(templatePath, "binary");
 
@@ -25,7 +25,7 @@ async function generateDoc(audit) {
     $t = translate.translate
 
     var settings = await Settings.getAll();
-    var preppedAudit = await prepAuditData(audit, settings)
+    var preppedAudit = await prepAuditData(audit, settings, anonymous=false)
 
     var opts = {};
     // opts.centered = true;
@@ -698,7 +698,7 @@ function cvssStrToObject(cvss) {
     return res
 }
 
-async function prepAuditData(data, settings) {
+async function prepAuditData(data, settings, anonymous=false) {
     /** CVSS Colors for table cells */
     var noneColor = settings.report.public.cvssColors.noneColor.replace('#', ''); //default of blue ("#4A86E8")
     var lowColor = settings.report.public.cvssColors.lowColor.replace('#', ''); //default of green ("#008000")
@@ -737,7 +737,8 @@ async function prepAuditData(data, settings) {
 
 
     var result = {}
-    result.name = data.name || "undefined"
+    console.log("anonymous is : "+anonymous);
+    result.name = (anonymous) ? "undefined" : (data.name || "undefined")
     result.auditType = $t(data.auditType) || "undefined"
     result.date = data.date || "undefined"
     result.date_start = data.date_start || "undefined"
@@ -756,20 +757,20 @@ async function prepAuditData(data, settings) {
 
     result.company = {}
     if (data.company) {
-        result.company.name = data.company.name || "undefined"
-        result.company.shortName = data.company.shortName || result.company.name
-        result.company.logo = data.company.logo || "undefined"
-        result.company.logo_small = data.company.logo || "undefined"
+        result.company.name = (anonymous) ? "undefined" : (data.company.name || "undefined")
+        result.company.shortName = (anonymous) ? "undefined" : (data.company.shortName || result.company.name)
+        result.company.logo = (anonymous) ? "undefined" : (data.company.logo || "undefined")
+        result.company.logo_small = (anonymous) ? "undefined" : (data.company.logo || "undefined")
     }
 
     result.client = {}
     if (data.client) {
-        result.client.email = data.client.email || "undefined"
-        result.client.firstname = data.client.firstname || "undefined"
-        result.client.lastname = data.client.lastname || "undefined"
-        result.client.phone = data.client.phone || "undefined"
-        result.client.cell = data.client.cell || "undefined"
-        result.client.title = data.client.title || "undefined"
+        result.client.email = (anonymous) ? "undefined" : (data.client.email || "undefined")
+        result.client.firstname = (anonymous) ? "undefined" : (data.client.firstname || "undefined")
+        result.client.lastname = (anonymous) ? "undefined" : (data.client.lastname || "undefined")
+        result.client.phone = (anonymous) ? "undefined" : (data.client.phone || "undefined")
+        result.client.cell = (anonymous) ? "undefined" : (data.client.cell || "undefined")
+        result.client.title = (anonymous) ? "undefined" : (data.client.title || "undefined")
     }
 
     result.collaborators = []
@@ -798,9 +799,14 @@ async function prepAuditData(data, settings) {
 
 
     result.language = data.language || "undefined"
-    result.scope = data.scope.toObject() || []
+    result.scope = (anonymous) ? [] : (data.scope.toObject() || [])
 
     result.findings = []
+    /* if (anonymous){
+        for (finding of data.findings) {
+            delete finding.scope
+        }
+    } */
     for (finding of data.findings) {
         var tmpCVSS = CVSS31.calculateCVSSFromVector(finding.cvssv3);
         var tmpFinding = {
@@ -812,12 +818,13 @@ async function prepAuditData(data, settings) {
             remediationComplexity: finding.remediationComplexity || "",
             priority: finding.priority || "",
             references: finding.references || [],
-            poc: await splitHTMLParagraphs(finding.poc),
+            poc: (anonymous) ? "" : (await splitHTMLParagraphs(finding.poc)),
             affected: finding.scope || "",
             status: finding.status || "",
             category: $t(finding.category) || $t("No Category"),
             //identifier: "IDX-" + utils.lPad(finding.identifier)
         }
+        tmpFinding.affected = (anonymous) ?  "" : (finding.scope || "")
         // Remediation Complexity color 
         if (tmpFinding.remediationComplexity === 1) tmpFinding.remediation.cellColorComplexity = cellLowColorRemediationComplexity
         else if (tmpFinding.remediationComplexity === 2) tmpFinding.remediation.cellColorComplexity = cellMediumColorRemediationComplexity

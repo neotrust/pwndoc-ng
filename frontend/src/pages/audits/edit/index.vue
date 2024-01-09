@@ -34,6 +34,12 @@
 								<i class="fa fa-download fa-lg"></i>
 							</q-btn>
 						</q-item-section>
+					 	<q-item-section side class="topButtonSection">
+							<q-btn flat color="info" @click="generateReport(true)">
+								<q-tooltip anchor="bottom middle" self="center left" :delay="500" content-class="text-bold">{{$t('tooltip.downloadReport')}}</q-tooltip> 
+								<i class="fa fa-user-secret fa-lg"></i>
+							</q-btn>
+						</q-item-section>
 					</q-item>
 
 					<q-item :to='"/audits/"+auditId+"/general"'>
@@ -531,7 +537,7 @@ export default {
 				})
 			},
 
-			generateReport: function() {
+			generateReport: function(anonymous=false) {
 				const downloadNotif = Notify.create({
 					spinner: QSpinnerGears,
 					message: 'Generating the Report',
@@ -539,7 +545,7 @@ export default {
 					timeout: 0,
 					group: false
 				})
-				AuditService.generateAuditReport(this.auditId)
+				AuditService.generateAuditReport(this.auditId,anonymous)
 				.then(response => {
 					var blob = new Blob([response.data], {type: "application/octet-stream"});
 					var link = document.createElement('a');

@@ -30,8 +30,9 @@ var mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 // Trim all Strings
 mongoose.Schema.Types.String.set('trim', true);
-
-mongoose.connect(`mongodb://${config.database.server}:${config.database.port}/${config.database.name}`, {});
+mongoose.connect(`mongodb://${config.database.server}:${config.database.port}/${config.database.name}`, {})
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Models import
 require('./models/user');
